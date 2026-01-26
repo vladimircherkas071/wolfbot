@@ -7,8 +7,10 @@ from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
 from fun.reactions import gif_reaction, text_reaction, photo_reaction
 
-TOKEN = "8508519809:AAFgIb3qNhW0-gMseeneZ_F_Doj9uSy5Heg"
-CHAT_ID = -4988166442
+import os
+
+TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
