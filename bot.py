@@ -18,8 +18,8 @@ dp = Dispatcher(bot)
 # ---------- КОМАНДЫ ----------
 
 @dp.message_handler(content_types=["animation"])
-async def catch_gif(message: types.Message):
-    print(message.animation.file_id)
+async def debug_gif(message: types.Message):
+    await message.reply(f"GIF ID:\n{message.animation.file_id}")
 
 @dp.message_handler(commands=["мем"])
 async def meme(message: types.Message):
