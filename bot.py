@@ -17,6 +17,10 @@ dp = Dispatcher(bot)
 
 # ---------- КОМАНДЫ ----------
 
+@dp.message_handler(content_types=["animation"])
+async def catch_gif(message: types.Message):
+    print(message.animation.file_id)
+
 @dp.message_handler(commands=["мем"])
 async def meme(message: types.Message):
     update_activity()
