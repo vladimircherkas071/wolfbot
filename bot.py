@@ -46,7 +46,7 @@ async def kick(message: types.Message):
 
     for ent in message.entities:
         if ent.type == "mention":
-            user = ent.get_text()
+            user = ent.get_text(message.text)
             await message.reply(
                 f"👢 {user} получил пинок.\n"
                 f"📉 Активность не обнаружена.\n"
@@ -73,7 +73,11 @@ async def react_to_gif(message: types.Message):
 
     update_activity()
     print("GIF / STICKER пойман")
-    await message.reply(gif_reaction())
+    
+    if random.random() < 0.4:
+      await message.reply(gif_reaction())
+    else:
+      print("Gif пойман, но бот молчит по вероятности")
 
 # ---------- ФОТО ----------
 
@@ -84,8 +88,11 @@ async def react_to_photo(message: types.Message):
 
     update_activity()
     print("PHOTO пойман")
-
-    await message.reply(photo_reaction())
+    
+    if random.random() < 0.65:
+      await message.reply(photo_reaction())
+    else:
+      print("фото поймано, но бот молчит по вероятности")
 
 # ---------- ТЕКСТ ----------
 
