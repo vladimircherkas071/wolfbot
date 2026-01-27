@@ -8,7 +8,7 @@ def update_activity():
     global last_activity
     last_activity = time.time()
 
-def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
+async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
     """
     Авто-анти-тишина. Каждые interval секунд проверяет активность.
     Если нет сообщений — шлёт предупреждение.

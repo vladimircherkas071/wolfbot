@@ -27,10 +27,9 @@ async def react_to_text(message: types.Message):
     if "lucifer" in text or "люцифер" in text or "люцик" in text:
       await message.reply_sticker(LUCIFER_STICKER)
 
-    if random.random() < 0.4:
-        await message.reply("Призыв принят. Администратор ада уже в пути.")
-
-    return
+      if random.random() < 0.4:
+          await message.reply("Призыв принят. Администратор ада уже в пути.")
+      return
 
 @dp.message_handler(content_types=["animation"])
 async def debug_gif(message: types.Message):
