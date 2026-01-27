@@ -1,4 +1,3 @@
-import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from aiogram.types import ContentType
@@ -131,7 +130,11 @@ async def react_to_text(message: types.Message):
 
 # ---------- СТАРТ ----------
 
+async def main():
+  asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
+  await dp.start_polling()
+
 if __name__ == "__main__":
-    print("🐺 OfficeWolf запущен")
-    asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
-    executor.start_polling(dp, skip_updates=True)
+  import asyncio
+  asyncio.run(main())
+  print("🐺 OfficeWolf запущен")
