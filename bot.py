@@ -7,7 +7,7 @@ from aiogram.types import ContentType
 
 from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
-from fun.reactions import gif_reaction, text_reaction, photo_reaction
+from fun.reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
@@ -18,21 +18,8 @@ LUCIFER_TEXT = "Призыв принят. Администратор ада у�
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
-# ---------------- CLEANUP ----------------
+DELETE_DELAY = 120
 
-async def cleanup_lucifer():
-    try:
-        async for msg in bot.get_chat_history(CHAT_ID, limit=50):
-            try:
-                if msg.sticker and msg.sticker.file_id == LUCIFER_STICKER:
-                    await msg.delete()
-
-                if msg.text == LUCIFER_TEXT:
-                    await msg.delete()
-            except:
-                pass
-    except:
-        pass
 
 # ---------------- COMMANDS ----------------
 
@@ -41,20 +28,24 @@ async def meme(message: types.Message):
     update_activity()
     await message.reply(random_meme())
 
+
 @dp.message_handler(commands=["оракул"])
 async def oracle(message: types.Message):
     update_activity()
     await message.reply(random_oracle())
+
 
 @dp.message_handler(commands=["волк"])
 async def wolf(message: types.Message):
     update_activity()
     await message.reply(random_wolf())
 
+
 @dp.message_handler(commands=["help", "помощь", "инструкция"])
 async def help_command(message: types.Message):
     update_activity()
     await message.reply(HELP_TEXT)
+
 
 @dp.message_handler(commands=["пинок"])
 async def kick(message: types.Message):
@@ -73,6 +64,7 @@ async def kick(message: types.Message):
                 f"🐺 Соберись."
             )
 
+
 # ---------------- GIF / STICKER ----------------
 
 @dp.message_handler(content_types=[ContentType.ANIMATION, ContentType.STICKER, ContentType.DOCUMENT])
@@ -87,7 +79,13 @@ async def react_to_gif(message: types.Message):
     update_activity()
 
     if random.random() < 0.4:
-        await message.reply(gif_reaction())
+        msg = await message.reply(gif_reaction())
+        await asyncio.sleep(DELETE_DELAY)
+        try:
+            await msg.delete()
+        except:
+            pass
+
 
 # ---------------- PHOTO ----------------
 
@@ -99,12 +97,19 @@ async def react_to_photo(message: types.Message):
     update_activity()
 
     if random.random() < 0.65:
-        await message.reply(photo_reaction())
+        msg = await message.reply(photo_reaction())
+        await asyncio.sleep(DELETE_DELAY)
+        try:
+            await msg.delete()
+        except:
+            pass
 
-# ---------------- TEXT + LUCIFER ----------------
+
+# ---------------- TEXT ----------------
 
 @dp.message_handler(content_types=ContentType.TEXT)
 async def react_to_text(message: types.Message):
+
     if message.from_user.is_bot:
         return
 
@@ -115,35 +120,52 @@ async def react_to_text(message: types.Message):
 
     text = message.text.lower()
 
-    # ---- LUCIFER ----
-    if "lucifer" in text or "люцифер" in text or "люцик" in text or "luccifer" in text or "люсик" in text or "сатана" in text:
+    # ---------- LUCIFER (высший приоритет) ----------
+
+    if any(x in text for x in ["lucifer","люцифер","люцик","luccifer","люсик","сатана"]):
 
         gif_msg = await message.reply_sticker(LUCIFER_STICKER)
-        comment_msg = await message.reply(LUCIFER_TEXT)
+        comment = await message.reply(LUCIFER_TEXT)
 
-        await asyncio.sleep(120)
+        await asyncio.sleep(DELETE_DELAY)
 
         try:
             await gif_msg.delete()
-            await comment_msg.delete()
+            await comment.delete()
         except:
             pass
 
         return
 
-    # ---- RANDOM TEXT ----
+    # ---------- KEYWORD GIFS ----------
+
+    for trigger, gif_id in TRIGGER_GIFS.items():
+        if trigger in text:
+
+            gif_msg = await message.reply_sticker(gif_id)
+            comment = await message.reply("⚡️ Реакция зафиксирована.")
+
+            await asyncio.sleep(DELETE_DELAY)
+
+            try:
+                await gif_msg.delete()
+                await comment.delete()
+            except:
+                pass
+
+            return
+
+    # ---------- RANDOM TEXT ----------
+    
     if random.random() < 0.07:
         await message.reply(text_reaction())
+
 
 # ---------------- START ----------------
 
 async def main():
     print("🐺 OfficeWolf запущен")
-
-    await cleanup_lucifer()
-
     asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
-
     await dp.start_polling()
 
 if __name__ == "__main__":

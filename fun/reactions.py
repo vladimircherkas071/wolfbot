@@ -43,6 +43,47 @@ TEXT_REACTIONS = [
     "Хто не скаче, той москаль!!!"
 ]
 
+# ---------- ГРУППЫ ТРИГГЕРОВ ----------
+
+TRIGGER_GROUPS = [
+    (["жопа","срака"],
+     "CAACAgIAAxkBAAELWpJpeMN5jbJlJ-l_VqCJtujOmMmsvAACjVoAApReqUmkku5rgA5iGjgE"),
+
+    (["рыба","карась","рыбу","карася","рыбку","рыбка","рыбалка","рыбалку"],
+     "CAACAgIAAxkBAAELWpxpeMORp7df3Jht8HSaY3ALWOz8DQAC7FMAAmjOqUmzPhFB7mklRzgE"),
+
+    (["тушкан","тушканчик","тушкана","тушканчика","tushkann","tushkan"],
+     "CAACAgIAAxkBAAELWqxpeMRUXxadUxhb9-CeNH6nFlmVngACPHMAAp9tSEkFk1Mi04dOIjgE"),
+
+    (["depozit","dep","деп","депозит","депозитное","депозитный"],
+     "CAACAgIAAxkBAAELWrJpeMTalWVKWzQl7w9aUqPcFixifAACOksAAvJl2UlIXsRR10UIGDgE"),
+
+    (["бомба","взрыв","бимба","bomba","взорвать"],
+     "CAACAgIAAxkBAAELWslpeMVSiKziV_hcMDqIzq6J4wUwcAACdEoAAp4SSEv23Eh72GXsSjgE"),
+
+    (["конфета","конфетка","сладкое","сладости","фереро"],
+     "CAACAgIAAxkBAAELWtNpeMW85NLhK74pGG9gexjlv7i_ZwACZlIAAp7_SEuf5SYwhLtUGjgE"),
+
+    (["крыса","крысюк","крысу"],
+     "CAACAgIAAxkBAAELWtppeMaJGCkGQtB5IWNkt8gqdAyBfAACmk0AAjM7QUn2Ka2zTbc__TgE"),
+
+    (["грязь","болото","грязюка","говно","говна","червячки"],
+     "CAACAgIAAxkBAAELWuRpeMawz6ScYqEl2tJRo-GuqFv5rwACFEsAAm2VQEsxZ1oayTBMgzgE"),
+
+    (["боль","больно"],
+     "CAACAgIAAxkBAAELWvZpeMcn4Kfidu4bujpDyaIqtiHGewACiVYAAr1EqUn3E-f0_Ges6TgE"),
+
+    (["фокус","фокусы"],
+     "CAACAgIAAxkBAAELWvppeMdjtn-OZHTa6DRcpS61_OHKIQACL0sAAtPlQUvGYrtRM1z15DgE"),
+]
+
+# разворачиваем в словарь слово → gif
+TRIGGER_GIFS = {}
+
+for words, gif in TRIGGER_GROUPS:
+    for w in words:
+        TRIGGER_GIFS[w] = gif
+
 def gif_reaction():
     return random.choice(GIF_REACTIONS)
 
