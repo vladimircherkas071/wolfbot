@@ -132,5 +132,5 @@ async def react_to_text(message: types.Message):
 
 if __name__ == "__main__":
     print("🐺 OfficeWolf запущен")
-    start_silence_watcher(bot, CHAT_ID)
+    asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
     executor.start_polling(dp, skip_updates=True)
