@@ -18,7 +18,7 @@ def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
         while True:
             time.sleep(interval)
             if time.time() - last_activity > interval:
-                bot.send_message(chat_id, 
+                await bot.send_message(chat_id, 
                     "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?")
                 last_activity = time.time()
     Thread(target=watcher, daemon=True).start()

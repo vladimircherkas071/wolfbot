@@ -12,10 +12,25 @@ import os
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
+LUCIFER_STICKER = "CAACAgIAAxkBAAELVXJpeHeplIUQU_DFFJ-8UZD2rSprZAACoU0AAtW8QEtUa-uvqhhMKDgE"
+
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
 # ---------- КОМАНДЫ ----------
+
+@dp.message_handler(content_types=ContentType.TEXT)
+async def react_to_text(message: types.Message):
+
+    text = message.text.lower()
+
+    if "lucifer" in text or "люцифер" in text or "люцик" in text:
+    await message.reply_sticker(LUCIFER_STICKER)
+
+    if random.random() < 0.4:
+        await message.reply("Призыв принят. Администратор ада уже в пути.")
+
+    return
 
 @dp.message_handler(content_types=["animation"])
 async def debug_gif(message: types.Message):
