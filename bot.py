@@ -1,39 +1,40 @@
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-from aiogram.types import ContentType
+import asyncio
 import random
+import os
+
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import ContentType
 
 from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
 from fun.reactions import gif_reaction, text_reaction, photo_reaction
 
-import os
-
 TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+CHAT_ID = int(os.getenv("CHAT_ID"))
 
 LUCIFER_STICKER = "CAACAgIAAxkBAAELVXJpeHeplIUQU_DFFJ-8UZD2rSprZAACoU0AAtW8QEtUa-uvqhhMKDgE"
+LUCIFER_TEXT = "Призыв принят. Администратор ада уже в пути."
 
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
-# ---------- КОМАНДЫ ----------
+# ---------------- CLEANUP ----------------
 
-@dp.message_handler(content_types=ContentType.TEXT)
-async def react_to_text(message: types.Message):
+async def cleanup_lucifer():
+    try:
+        async for msg in bot.get_chat_history(CHAT_ID, limit=50):
+            try:
+                if msg.sticker and msg.sticker.file_id == LUCIFER_STICKER:
+                    await msg.delete()
 
-    text = message.text.lower()
+                if msg.text == LUCIFER_TEXT:
+                    await msg.delete()
+            except:
+                pass
+    except:
+        pass
 
-    if "lucifer" in text or "люцифер" in text or "люцик" in text:
-      await message.reply_sticker(LUCIFER_STICKER)
-
-      if random.random() < 0.4:
-          await message.reply("Призыв принят. Администратор ада уже в пути.")
-      return
-
-@dp.message_handler(content_types=["animation"])
-async def debug_gif(message: types.Message):
-    await message.reply(f"GIF ID:\n{message.animation.file_id}")
+# ---------------- COMMANDS ----------------
 
 @dp.message_handler(commands=["мем"])
 async def meme(message: types.Message):
@@ -58,6 +59,7 @@ async def help_command(message: types.Message):
 @dp.message_handler(commands=["пинок"])
 async def kick(message: types.Message):
     update_activity()
+
     if not message.entities:
         await message.reply("👢 Кого пинать? Сам себя?")
         return
@@ -71,33 +73,23 @@ async def kick(message: types.Message):
                 f"🐺 Соберись."
             )
 
-# ---------- GIF / СТИКЕРЫ / ВИДЕО-ГИФ ----------
+# ---------------- GIF / STICKER ----------------
 
-@dp.message_handler(
-    content_types=[
-        ContentType.ANIMATION,
-        ContentType.STICKER,
-        ContentType.DOCUMENT
-    ]
-)
+@dp.message_handler(content_types=[ContentType.ANIMATION, ContentType.STICKER, ContentType.DOCUMENT])
 async def react_to_gif(message: types.Message):
     if message.from_user.is_bot:
         return
 
-    # document — только gif/mp4
     if message.document:
         if message.document.mime_type not in ("video/mp4", "image/gif"):
             return
 
     update_activity()
-    print("GIF / STICKER пойман")
-    
-    if random.random() < 0.4:
-      await message.reply(gif_reaction())
-    else:
-      print("Gif пойман, но бот молчит по вероятности")
 
-# ---------- ФОТО ----------
+    if random.random() < 0.4:
+        await message.reply(gif_reaction())
+
+# ---------------- PHOTO ----------------
 
 @dp.message_handler(content_types=ContentType.PHOTO)
 async def react_to_photo(message: types.Message):
@@ -105,14 +97,11 @@ async def react_to_photo(message: types.Message):
         return
 
     update_activity()
-    print("PHOTO пойман")
-    
-    if random.random() < 0.65:
-      await message.reply(photo_reaction())
-    else:
-      print("фото поймано, но бот молчит по вероятности")
 
-# ---------- ТЕКСТ ----------
+    if random.random() < 0.65:
+        await message.reply(photo_reaction())
+
+# ---------------- TEXT + LUCIFER ----------------
 
 @dp.message_handler(content_types=ContentType.TEXT)
 async def react_to_text(message: types.Message):
@@ -124,17 +113,38 @@ async def react_to_text(message: types.Message):
 
     update_activity()
 
-    # шанс реакции 7%
+    text = message.text.lower()
+
+    # ---- LUCIFER ----
+    if "lucifer" in text or "люцифер" in text or "люцик" in text or "luccifer" in text or "люсик" in text or "сатана" in text:
+
+        gif_msg = await message.reply_sticker(LUCIFER_STICKER)
+        comment_msg = await message.reply(LUCIFER_TEXT)
+
+        await asyncio.sleep(120)
+
+        try:
+            await gif_msg.delete()
+            await comment_msg.delete()
+        except:
+            pass
+
+        return
+
+    # ---- RANDOM TEXT ----
     if random.random() < 0.07:
         await message.reply(text_reaction())
 
-# ---------- СТАРТ ----------
+# ---------------- START ----------------
 
 async def main():
-  asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
-  await dp.start_polling()
+    print("🐺 OfficeWolf запущен")
+
+    await cleanup_lucifer()
+
+    asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
+
+    await dp.start_polling()
 
 if __name__ == "__main__":
-  import asyncio
-  asyncio.run(main())
-  print("🐺 OfficeWolf запущен")
+    asyncio.run(main())
