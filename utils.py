@@ -8,11 +8,11 @@ def update_activity():
     global last_activity
     last_activity = time.time()
 
-
 async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
     """
-    Каждые interval секунд проверяет активность.
-    Если тишина — пишет в чат.
+    Анти-тишина.
+    Если нет активности interval секунд — пингует чат.
+    Сообщение живёт 2 минуты и удаляется.
     """
 
     global last_activity
@@ -21,9 +21,21 @@ async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
         await asyncio.sleep(interval)
 
         if time.time() - last_activity > interval:
-            await bot.send_message(
-                chat_id,
-                "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?"
-            )
+            try:
+                msg = await bot.send_message(
+                    chat_id,
+                    "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?"
+                )
 
-            last_activity = time.time()
+                # живёт 2 минуты
+                await asyncio.sleep(120)
+
+                try:
+                    await msg.delete()
+                except:
+                    pass
+
+                last_activity = time.time()
+
+            except Exception as e:
+                print("Silence watcher error:", e)
