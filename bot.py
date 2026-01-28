@@ -7,7 +7,7 @@ from aiogram.types import ContentType
 
 from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
-from fun.reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS, match_voice
+from reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS, match_voice
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
@@ -15,11 +15,10 @@ CHAT_ID = int(os.getenv("CHAT_ID"))
 LUCIFER_STICKER = "CAACAgIAAxkBAAELVXJpeHeplIUQU_DFFJ-8UZD2rSprZAACoU0AAtW8QEtUa-uvqhhMKDgE"
 LUCIFER_TEXT = "Призыв принят. Администратор ада уже в пути."
 
-bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
-dp = Dispatcher(bot)
-
 DELETE_DELAY = 120
 
+bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
+dp = Dispatcher(bot)
 
 # ---------------- COMMANDS ----------------
 
@@ -52,7 +51,7 @@ async def kick(message: types.Message):
     update_activity()
 
     if not message.entities:
-        await bot.send_message(message.chat.id, "👢 Кого пинать? Сам себя?")
+        await bot.send_message(message.chat.id, "👢 Кого пинать?")
         return
 
     for ent in message.entities:
@@ -63,7 +62,6 @@ async def kick(message: types.Message):
                 f"📉 Активность не обнаружена.\n"
                 f"🐺 Соберись."
             )
-
 
 # ---------------- GIF / STICKER ----------------
 
@@ -86,7 +84,6 @@ async def react_to_gif(message: types.Message):
         except:
             pass
 
-
 # ---------------- PHOTO ----------------
 
 @dp.message_handler(content_types=ContentType.PHOTO)
@@ -104,12 +101,10 @@ async def react_to_photo(message: types.Message):
         except:
             pass
 
-
 # ---------------- TEXT ----------------
 
 @dp.message_handler(content_types=ContentType.TEXT)
 async def react_to_text(message: types.Message):
-
     if message.from_user.is_bot:
         return
 
@@ -120,8 +115,9 @@ async def react_to_text(message: types.Message):
 
     text = message.text.lower()
 
+    # ---------- VOICE ----------
 
-voice_id = match_voice(text)
+    voice_id = match_voice(text)
 
     if voice_id:
         voice_msg = await bot.send_voice(message.chat.id, voice_id)
@@ -135,10 +131,9 @@ voice_id = match_voice(text)
 
         return
 
-    # ---------- LUCIFER (высший приоритет) ----------
+    # ---------- LUCIFER ----------
 
     if any(x in text for x in ["lucifer","люцифер","люцик","luccifer","люсик","сатана"]):
-
         gif_msg = await message.reply_sticker(LUCIFER_STICKER)
         comment = await bot.send_message(message.chat.id, LUCIFER_TEXT)
 
@@ -156,25 +151,21 @@ voice_id = match_voice(text)
 
     for trigger, gif_id in TRIGGER_GIFS.items():
         if trigger in text:
-
             gif_msg = await message.reply_sticker(gif_id)
-            #comment = await message.reply("⚡️ Реакция зафиксирована.")
-
+            
             await asyncio.sleep(DELETE_DELAY)
 
             try:
                 await gif_msg.delete()
-                #await comment.delete()
             except:
                 pass
 
             return
 
     # ---------- RANDOM TEXT ----------
-    
+
     if random.random() < 0.07:
         await bot.send_message(message.chat.id, text_reaction())
-
 
 # ---------------- START ----------------
 
