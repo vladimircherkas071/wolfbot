@@ -1,21 +1,25 @@
-import time
+            exceptimport time
 import asyncio
 from aiogram import Bot
 
 last_activity = time.time()
+watcher_running = False
 
 def update_activity():
     global last_activity
     last_activity = time.time()
 
 async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
-    """
-    Анти-тишина.
-    Если нет активности interval секунд — пингует чат.
-    Сообщение живёт 2 минуты и удаляется.
-    """
-
     global last_activity
+    global watcher_running
+
+    # защита от мультизапуска
+    if watcher_running:
+        print("Silence watcher already running")
+        return
+
+    watcher_running = True
+    print("Silence watcher started")
 
     while True:
         await asyncio.sleep(interval)
@@ -32,8 +36,8 @@ async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
 
                 try:
                     await msg.delete()
-                except:
-                    pass
+                except Exception as e:
+                    print("Delete failed:", e)
 
                 last_activity = time.time()
 
