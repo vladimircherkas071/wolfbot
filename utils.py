@@ -1,45 +1,52 @@
-            exceptimport time
+import time
 import asyncio
 from aiogram import Bot
 
 last_activity = time.time()
-watcher_running = False
+last_ping_time = 0
+
 
 def update_activity():
     global last_activity
     last_activity = time.time()
 
+
 async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
-    global last_activity
-    global watcher_running
+    """
+    Анти-тишина с защитой от спама + автоудаление пинга
+    """
 
-    # защита от мультизапуска
-    if watcher_running:
-        print("Silence watcher already running")
-        return
-
-    watcher_running = True
-    print("Silence watcher started")
+    global last_ping_time
 
     while True:
         await asyncio.sleep(interval)
 
-        if time.time() - last_activity > interval:
+        now = time.time()
+
+        # если чат активен — ничего не делаем
+        if now - last_activity < interval:
+            continue
+
+        # защита от флуда (не чаще чем раз в 30 минут)
+        if now - last_ping_time < 1800:
+            continue
+
+        try:
+            msg = await bot.send_message(
+                chat_id,
+                "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?"
+            )
+
+            last_ping_time = now
+            last_activity = now
+
+            # автоудаление через 2 минуты
+            await asyncio.sleep(120)
+
             try:
-                msg = await bot.send_message(
-                    chat_id,
-                    "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?"
-                )
+                await msg.delete()
+            except:
+                pass
 
-                # живёт 2 минуты
-                await asyncio.sleep(120)
-
-                try:
-                    await msg.delete()
-                except Exception as e:
-                    print("Delete failed:", e)
-
-                last_activity = time.time()
-
-            except Exception as e:
-                print("Silence watcher error:", e)
+        except Exception as e:
+            print("Silence watcher error:", e)
