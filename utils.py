@@ -11,12 +11,12 @@ def update_activity():
     last_activity = time.time()
 
 
-async def start_silence_watcher(bot: Bot, chat_id: int, interval=600):
+async def start_silence_watcher(bot: Bot, chat_id: int, interval=1800):
     """
     Анти-тишина с защитой от спама + автоудаление пинга
     """
 
-    global last_ping_time
+    global last_ping_time, last_activity
 
     while True:
         await asyncio.sleep(interval)

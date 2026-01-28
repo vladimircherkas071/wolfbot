@@ -44,7 +44,7 @@ async def wolf(message: types.Message):
 @dp.message_handler(commands=["help", "помощь", "инструкция"])
 async def help_command(message: types.Message):
     update_activity()
-    await message.reply(HELP_TEXT)
+    await bot.send_message(message.chat.id, HELP_TEXT)
 
 
 @dp.message_handler(commands=["пинок"])
@@ -52,7 +52,7 @@ async def kick(message: types.Message):
     update_activity()
 
     if not message.entities:
-        await message.reply("👢 Кого пинать? Сам себя?")
+        await bot.send_message(message.chat.id, "👢 Кого пинать? Сам себя?")
         return
 
     for ent in message.entities:
@@ -79,7 +79,7 @@ async def react_to_gif(message: types.Message):
     update_activity()
 
     if random.random() < 0.4:
-        msg = await message.reply(gif_reaction())
+        msg = await bot.send_message(message.chat.id, gif_reaction())
         await asyncio.sleep(DELETE_DELAY)
         try:
             await msg.delete()
@@ -97,7 +97,7 @@ async def react_to_photo(message: types.Message):
     update_activity()
 
     if random.random() < 0.65:
-        msg = await message.reply(photo_reaction())
+        msg = await bot.send_message(message.chat.id, photo_reaction())
         await asyncio.sleep(DELETE_DELAY)
         try:
             await msg.delete()
@@ -125,7 +125,7 @@ async def react_to_text(message: types.Message):
     if any(x in text for x in ["lucifer","люцифер","люцик","luccifer","люсик","сатана"]):
 
         gif_msg = await message.reply_sticker(LUCIFER_STICKER)
-        comment = await message.reply(LUCIFER_TEXT)
+        comment = await bot.send_message(message.chat.id, LUCIFER_TEXT)
 
         await asyncio.sleep(DELETE_DELAY)
 
@@ -143,13 +143,13 @@ async def react_to_text(message: types.Message):
         if trigger in text:
 
             gif_msg = await message.reply_sticker(gif_id)
-            comment = await message.reply("⚡️ Реакция зафиксирована.")
+            #comment = await message.reply("⚡️ Реакция зафиксирована.")
 
             await asyncio.sleep(DELETE_DELAY)
 
             try:
                 await gif_msg.delete()
-                await comment.delete()
+                #await comment.delete()
             except:
                 pass
 
@@ -158,7 +158,7 @@ async def react_to_text(message: types.Message):
     # ---------- RANDOM TEXT ----------
     
     if random.random() < 0.07:
-        await message.reply(text_reaction())
+        await bot.send_message(message.chat.id, text_reaction())
 
 
 # ---------------- START ----------------
