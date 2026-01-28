@@ -7,7 +7,7 @@ from aiogram.types import ContentType
 
 from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
-from fun.reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS
+from fun.reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS, match_voice
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
@@ -119,6 +119,21 @@ async def react_to_text(message: types.Message):
     update_activity()
 
     text = message.text.lower()
+
+
+voice_id = match_voice(text)
+
+    if voice_id:
+        voice_msg = await bot.send_voice(message.chat.id, voice_id)
+
+        await asyncio.sleep(180)
+
+        try:
+            await voice_msg.delete()
+        except:
+            pass
+
+        return
 
     # ---------- LUCIFER (высший приоритет) ----------
 

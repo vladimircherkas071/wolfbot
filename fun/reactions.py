@@ -80,6 +80,22 @@ TRIGGER_GROUPS = [
 # разворачиваем в словарь слово → gif
 TRIGGER_GIFS = {}
 
+# -------- VOICE REACTIONS --------
+
+VOICE_REACTIONS = {
+    ("помогите", "пиздить"): "CQACAgUAAxkBAAELbYlpek5nJeil-uizk-AqN6qYlsbKhgACNx4AAkBS0VcdGWv_XnAe0zgE",
+}
+
+def match_voice(text: str):
+    text = text.lower()
+
+    for keys, voice_id in VOICE_REACTIONS.items():
+        for k in keys:
+            if k in text:
+                return voice_id
+
+    return None
+
 for words, gif in TRIGGER_GROUPS:
     for w in words:
         TRIGGER_GIFS[w] = gif
