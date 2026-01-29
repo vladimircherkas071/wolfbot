@@ -86,7 +86,7 @@ TRIGGER_GROUPS = [
 
 # разворачиваем в словарь слово → gif
 TRIGGER_GIFS = {}
-for words. gif in TRIGGER_GROUPS:
+for words, gif in TRIGGER_GROUPS:
   for w in words:
     TRIGGER_GIFS[w] = gif
 # -------- VOICE REACTIONS --------
