@@ -1,9 +1,19 @@
 import time
 import asyncio
+import random
 from aiogram import Bot
 
 last_activity = time.time()
 last_ping_time = 0
+
+IDLE_VOICES = [
+    "AwACAgUAAxkDAAMVaXtSMhAi0AkPeNtl1_29o6LW1QsAAgUZAAJ0XdlXahpPgBCFCv84BA",
+    "AwACAgUAAxkDAAMZaXuCNKMRh4UO-0FVBckMH1wXkMsAAggcAAJ0XeFXFyiFt_fmHoQ4BA",
+    "AwACAgUAAxkDAAMcaXuCW_T4KzeM64pQjbVvMLDZNoIAAgocAAJ0XeFXuJjDLRdo1l84BA",
+    "AwACAgUAAxkDAAMlaXuC4Q49sTjT1SqyUGim01Q3BJ8AAhAcAAJ0XeFXKr5ZIb31tGo4BA"
+]
+
+IDLE_TEXT = "Я подключен к нашей таблице, если не прослушаешь поставлю -250 штраф автоматом!"
 
 
 def update_activity():
@@ -12,10 +22,6 @@ def update_activity():
 
 
 async def start_silence_watcher(bot: Bot, chat_id: int, interval=1800):
-    """
-    Анти-тишина с защитой от спама + автоудаление пинга
-    """
-
     global last_ping_time, last_activity
 
     while True:
@@ -23,28 +29,26 @@ async def start_silence_watcher(bot: Bot, chat_id: int, interval=1800):
 
         now = time.time()
 
-        # если чат активен — ничего не делаем
         if now - last_activity < interval:
             continue
 
-        # защита от флуда (не чаще чем раз в 30 минут)
         if now - last_ping_time < 1800:
             continue
 
         try:
-            msg = await bot.send_message(
-                chat_id,
-                "⚰️ Чат мёртв.\n🐺 Вы работаете или изображаете занятость?"
-            )
+            voice = random.choice(IDLE_VOICES)
+
+            v = await bot.send_voice(chat_id, voice)
+            t = await bot.send_message(chat_id, IDLE_TEXT)
 
             last_ping_time = now
             last_activity = now
 
-            # автоудаление через 2 минуты
             await asyncio.sleep(120)
 
             try:
-                await msg.delete()
+                await v.delete()
+                await t.delete()
             except:
                 pass
 

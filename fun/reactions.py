@@ -43,6 +43,13 @@ TEXT_REACTIONS = [
     "Хто не скаче, той москаль!!!"
 ]
 
+LUCIFER = (
+    "CAACAgIAAxkBAAELVXJpeHeplIUQU_DFFJ-8UZD2rSprZAACoU0AAtW8QEtUa-uvqhhMKDgE",
+    "Призыв принят. Администратор ада уже в пути."
+)
+
+LUCIFER_KEYS = ["lucifer","люцифер","люцик","luccifer","люсик","сатана"]
+
 # ---------- ГРУППЫ ТРИГГЕРОВ ----------
 
 TRIGGER_GROUPS = [
@@ -79,26 +86,36 @@ TRIGGER_GROUPS = [
 
 # разворачиваем в словарь слово → gif
 TRIGGER_GIFS = {}
-
+for words. gif in TRIGGER_GROUPS:
+  for w in words:
+    TRIGGER_GIFS[w] = gif
 # -------- VOICE REACTIONS --------
 
 VOICE_REACTIONS = {
-    ("помогите", "пиздить"): "CQACAgUAAxkBAAELbYlpek5nJeil-uizk-AqN6qYlsbKhgACNx4AAkBS0VcdGWv_XnAe0zgE",
+    ("помогите", "пиздить"): "AwACAgUAAxkBAAMKaXtGXiWeK4LsIgABpmOFVNcNtm8pAALlGAACdF3ZV0eBexSZgk_-OAQ",
+    ("условия", "суть"):
+      "AwACAgUAAxkDAAMMaXtM2yuNeramk5HHjQsidhW6JSgAAvkYAAJ0XdlXq0DgWzjNz6I4BA",
+    ("умник", "умный", "что делать", "ведешь"):
+      "AwACAgUAAxkDAAMPaXtN87jpmzcgt_bwUSIYRgHh8RQAAvsYAAJ0XdlXnKrPMs2xtg84BA",
+    ("расскажи", "как заработать", "рассказывай"):
+      "AwACAgUAAxkDAAMSaXtOiDRjIcjcm8vk8fKsQe0AAQ9fAAL9GAACdF3ZV1kcLSKWWcYKOAQ"
 }
 
 def match_voice(text: str):
     text = text.lower()
 
-    for keys, voice_id in VOICE_REACTIONS.items():
+    for keys, v in VOICE_REACTIONS.items():
         for k in keys:
             if k in text:
-                return voice_id
+                return v
 
     return None
 
-for words, gif in TRIGGER_GROUPS:
-    for w in words:
-        TRIGGER_GIFS[w] = gif
+def match_lucifer(text):
+    for k in LUCIFER_KEYS:
+        if k in text:
+            return LUCIFER
+    return None
 
 def gif_reaction():
     return random.choice(GIF_REACTIONS)

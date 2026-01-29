@@ -1,26 +1,42 @@
 import asyncio
 import random
 import os
+import traceback
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ContentType
 
 from phrases import random_meme, random_oracle, random_wolf, HELP_TEXT
 from utils import update_activity, start_silence_watcher
-from reactions import gif_reaction, text_reaction, photo_reaction, TRIGGER_GIFS, match_voice
+from fun.reactions import (
+    gif_reaction,
+    text_reaction,
+    photo_reaction,
+    TRIGGER_GIFS,
+    match_voice,
+    match_lucifer,
+)
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
-
-LUCIFER_STICKER = "CAACAgIAAxkBAAELVXJpeHeplIUQU_DFFJ-8UZD2rSprZAACoU0AAtW8QEtUa-uvqhhMKDgE"
-LUCIFER_TEXT = "Призыв принят. Администратор ада уже в пути."
 
 DELETE_DELAY = 120
 
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
-# ---------------- COMMANDS ----------------
+
+async def cleanup(chat_id, trigger_id, bot_id):
+    await asyncio.sleep(DELETE_DELAY)
+    try:
+        if trigger_id:
+            await bot.delete_message(chat_id, trigger_id)
+        await bot.delete_message(chat_id, bot_id)
+    except:
+        pass
+
+
+# ---------- COMMANDS ----------
 
 @dp.message_handler(commands=["мем"])
 async def meme(message: types.Message):
@@ -46,131 +62,89 @@ async def help_command(message: types.Message):
     await bot.send_message(message.chat.id, HELP_TEXT)
 
 
-@dp.message_handler(commands=["пинок"])
-async def kick(message: types.Message):
-    update_activity()
+# ---------- MEDIA ----------
 
-    if not message.entities:
-        await bot.send_message(message.chat.id, "👢 Кого пинать?")
-        return
+@dp.message_handler(content_types=ContentType.VOICE)
+async def catch_voice(message: types.Message):
+    print("VOICE ID:", message.voice.file_id)
 
-    for ent in message.entities:
-        if ent.type == "mention":
-            user = ent.get_text(message.text)
-            await message.reply(
-                f"👢 {user} получил пинок.\n"
-                f"📉 Активность не обнаружена.\n"
-                f"🐺 Соберись."
-            )
-
-# ---------------- GIF / STICKER ----------------
 
 @dp.message_handler(content_types=[ContentType.ANIMATION, ContentType.STICKER, ContentType.DOCUMENT])
-async def react_to_gif(message: types.Message):
-    if message.from_user.is_bot:
-        return
+async def react_media(message: types.Message):
+    try:
+        update_activity()
 
-    if message.document:
-        if message.document.mime_type not in ("video/mp4", "image/gif"):
-            return
+        if random.random() < 0.4:
+            msg = await bot.send_message(message.chat.id, gif_reaction())
+            asyncio.create_task(cleanup(message.chat.id, None, msg.message_id))
 
-    update_activity()
+    except:
+        traceback.print_exc()
 
-    if random.random() < 0.4:
-        msg = await bot.send_message(message.chat.id, gif_reaction())
-        await asyncio.sleep(DELETE_DELAY)
-        try:
-            await msg.delete()
-        except:
-            pass
-
-# ---------------- PHOTO ----------------
 
 @dp.message_handler(content_types=ContentType.PHOTO)
-async def react_to_photo(message: types.Message):
-    if message.from_user.is_bot:
-        return
+async def react_photo(message: types.Message):
+    try:
+        update_activity()
 
-    update_activity()
+        if random.random() < 0.65:
+            msg = await bot.send_message(message.chat.id, photo_reaction())
+            asyncio.create_task(cleanup(message.chat.id, None, msg.message_id))
 
-    if random.random() < 0.65:
-        msg = await bot.send_message(message.chat.id, photo_reaction())
-        await asyncio.sleep(DELETE_DELAY)
-        try:
-            await msg.delete()
-        except:
-            pass
+    except:
+        traceback.print_exc()
 
-# ---------------- TEXT ----------------
+
+# ---------- TEXT ----------
 
 @dp.message_handler(content_types=ContentType.TEXT)
-async def react_to_text(message: types.Message):
-    if message.from_user.is_bot:
-        return
-
-    if message.text.startswith("/"):
-        return
-
-    update_activity()
-
-    text = message.text.lower()
-
-    # ---------- VOICE ----------
-
-    voice_id = match_voice(text)
-
-    if voice_id:
-        voice_msg = await bot.send_voice(message.chat.id, voice_id)
-
-        await asyncio.sleep(180)
-
-        try:
-            await voice_msg.delete()
-        except:
-            pass
-
-        return
-
-    # ---------- LUCIFER ----------
-
-    if any(x in text for x in ["lucifer","люцифер","люцик","luccifer","люсик","сатана"]):
-        gif_msg = await message.reply_sticker(LUCIFER_STICKER)
-        comment = await bot.send_message(message.chat.id, LUCIFER_TEXT)
-
-        await asyncio.sleep(DELETE_DELAY)
-
-        try:
-            await gif_msg.delete()
-            await comment.delete()
-        except:
-            pass
-
-        return
-
-    # ---------- KEYWORD GIFS ----------
-
-    for trigger, gif_id in TRIGGER_GIFS.items():
-        if trigger in text:
-            gif_msg = await message.reply_sticker(gif_id)
-            
-            await asyncio.sleep(DELETE_DELAY)
-
-            try:
-                await gif_msg.delete()
-            except:
-                pass
-
+async def react_text(message: types.Message):
+    try:
+        if message.from_user.is_bot:
             return
 
-    # ---------- RANDOM TEXT ----------
+        if message.text.startswith("/"):
+            return
 
-    if random.random() < 0.07:
-        await bot.send_message(message.chat.id, text_reaction())
+        update_activity()
 
-# ---------------- START ----------------
+        text = message.text.lower()
+
+        # voice reactions
+        voice_id = match_voice(text)
+        if voice_id:
+            v = await bot.send_voice(message.chat.id, voice_id)
+            asyncio.create_task(cleanup(message.chat.id, message.message_id, v.message_id))
+            return
+
+        # lucifer
+        lucifer = match_lucifer(text)
+        if lucifer:
+            s, m = lucifer
+            st = await message.reply_sticker(s)
+            msg = await bot.send_message(message.chat.id, m)
+            asyncio.create_task(cleanup(message.chat.id, message.message_id, msg.message_id))
+            asyncio.create_task(cleanup(message.chat.id, None, st.message_id))
+            return
+
+        # gif triggers
+        for trigger, gif_id in TRIGGER_GIFS.items():
+            if trigger in text:
+                g = await message.reply_sticker(gif_id)
+                asyncio.create_task(cleanup(message.chat.id, message.message_id, g.message_id))
+                return
+
+        # random text
+        if random.random() < 0.07:
+            m = await bot.send_message(message.chat.id, text_reaction())
+            asyncio.create_task(cleanup(message.chat.id, None, m.message_id))
+
+    except:
+        traceback.print_exc()
+
+# ---------- START ----------
 
 async def main():
-    print("🐺 OfficeWolf запущен")
     asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
     await dp.start_polling()
 
