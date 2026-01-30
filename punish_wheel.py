@@ -5,6 +5,7 @@ import asyncio
 import json
 import os
 from aiogram import types
+from aiogram.utils.exceptions import MessageNotModified
 
 WHEEL_GIF = "wheel.mp4"
 STATS_FILE = "wheel_stats.json"
@@ -57,10 +58,13 @@ def add_stat(username, punishment):
 # ---------------- CORE ----------------
 
 async def animate_spinner(msg):
-    for _ in range(5):
-        for frame in SPINNER_FRAMES:
-            await msg.edit_text(frame)
-            await asyncio.sleep(0.6)
+    for frame in SPINNER_FRAMES:
+      try:
+        await msg.edit_text(frame)
+      except MessageNotModified:
+        pass
+      
+      await asyncio.sleep(0.5)
 
 
 def spin_wheel():
