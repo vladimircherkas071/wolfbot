@@ -70,15 +70,14 @@ def add_stat(username, punishment):
 
 async def animate_spinner(msg):
     """
-    Казино-эффект:
-    быстро -> медленно -> стоп
-    ~10 секунд всего
+    Казино эффект ~10 секунд
+    Без flood
     """
 
     delays = (
-        [0.35] * 6 +   # быстро
-        [0.6]  * 6 +   # средне
-        [0.9]  * 6     # медленно
+        [0.5] * 4 +   # быстро
+        [0.8] * 4 +   # средне
+        [1.1] * 4     # медленно
     )
 
     frame_index = 0
@@ -86,7 +85,7 @@ async def animate_spinner(msg):
 
     for delay in delays:
         frame = SPINNER_FRAMES[frame_index % len(SPINNER_FRAMES)]
-        text = f"🎡 Крутим колесо волоеба...\n\n{frame}"
+        text = f"🎡 Крутим колесо...\n\n{frame}"
 
         if text != last:
             try:
@@ -102,13 +101,13 @@ async def animate_spinner(msg):
         frame_index += 1
         await asyncio.sleep(delay)
 
-    # драматическая пауза перед результатом 😈
+    # финальная пауза
     try:
         await msg.edit_text("🎡 Колесо замедляется...")
     except:
         pass
 
-    await asyncio.sleep(1.2)
+    await asyncio.sleep(1.3)
 
 def spin_wheel():
     return random.randint(1, 10)
@@ -130,7 +129,6 @@ async def run_wheel(bot, chat_id, username):
         punishment = PUNISHMENTS[result - 1]
 
         if result == 10:
-            await spinner_msg.edit_text("😈 Фартовый… крутим ещё!")
             await asyncio.sleep(3)
             await animate_spinner(spinner_msg)
             continue
