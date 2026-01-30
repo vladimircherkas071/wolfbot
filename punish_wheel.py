@@ -5,7 +5,7 @@ import asyncio
 import json
 import os
 from aiogram import types
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.utils.exceptions import MessageNotModified, RetryAfter
 
 WHEEL_GIF = "wheel.mp4"
 STATS_FILE = "wheel_stats.json"
@@ -68,19 +68,47 @@ def add_stat(username, punishment):
 
 # ---------------- CORE ----------------
 
-async def animate_spinner(msg, cycles=12):
+async def animate_spinner(msg):
+    """
+    Казино-эффект:
+    быстро -> медленно -> стоп
+    ~10 секунд всего
+    """
+
+    delays = (
+        [0.35] * 6 +   # быстро
+        [0.6]  * 6 +   # средне
+        [0.9]  * 6     # медленно
+    )
+
+    frame_index = 0
     last = None
 
-    for _ in range(cycles):
-        for frame in SPINNER_FRAMES:
-            if frame != last:
-                try:
-                    await msg.edit_text(f"🎡 Крутим колесо...\n\n{frame}")
-                except:
-                    pass
+    for delay in delays:
+        frame = SPINNER_FRAMES[frame_index % len(SPINNER_FRAMES)]
+        text = f"🎡 Крутим колесо волоеба...\n\n{frame}"
 
-            last = frame
-            await asyncio.sleep(0.35)
+        if text != last:
+            try:
+                await msg.edit_text(text)
+                last = text
+
+            except RetryAfter as e:
+                await asyncio.sleep(e.timeout)
+
+            except Exception:
+                pass
+
+        frame_index += 1
+        await asyncio.sleep(delay)
+
+    # драматическая пауза перед результатом 😈
+    try:
+        await msg.edit_text("🎡 Колесо замедляется...")
+    except:
+        pass
+
+    await asyncio.sleep(1.2)
 
 def spin_wheel():
     return random.randint(1, 10)
