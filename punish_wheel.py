@@ -24,10 +24,14 @@ PUNISHMENTS = [
 ]
 
 SPINNER_FRAMES = [
-    "Крутим…",
-    "⚫️🟡⚫️🟡⚫️",
-    "🟡⚫️🟡⚫️🟡",
-    "⚫️🟡⚫️🟡⚫️"
+    "🟡⚫️⚫️⚫️⚫️⚫️⚫️⚫️",
+    "⚫️🟡⚫️⚫️⚫️⚫️⚫️⚫️",
+    "⚫️⚫️🟡⚫️⚫️⚫️⚫️⚫️",
+    "⚫️⚫️⚫️🟡⚫️⚫️⚫️⚫️",
+    "⚫️⚫️⚫️⚫️🟡⚫️⚫️⚫️",
+    "⚫️⚫️⚫️⚫️⚫️🟡⚫️⚫️",
+    "⚫️⚫️⚫️⚫️⚫️⚫️🟡⚫️",
+    "⚫️⚫️⚫️⚫️⚫️⚫️⚫️🟡",
 ]
 
 
@@ -64,22 +68,26 @@ def add_stat(username, punishment):
 
 # ---------------- CORE ----------------
 
-async def animate_spinner(msg):
-    for frame in SPINNER_FRAMES:
-      try:
-        await msg.edit_text(frame)
-      except MessageNotModified:
-        pass
-      
-      await asyncio.sleep(0.5)
+async def animate_spinner(msg, cycles=12):
+    last = None
 
+    for _ in range(cycles):
+        for frame in SPINNER_FRAMES:
+            if frame != last:
+                try:
+                    await msg.edit_text(f"🎡 Крутим колесо...\n\n{frame}")
+                except:
+                    pass
+
+            last = frame
+            await asyncio.sleep(0.35)
 
 def spin_wheel():
     return random.randint(1, 10)
 
 
 async def run_wheel(bot, chat_id, username):
-    await bot.send_message(chat_id, f"🎡 {username} участвует в колесе наказаний…")
+    await bot.send_message(chat_id, f"🎡 {username} участвует в колесе волоеба…")
 
     await asyncio.sleep(3)
 
@@ -95,7 +103,7 @@ async def run_wheel(bot, chat_id, username):
 
         if result == 10:
             await spinner_msg.edit_text("😈 Фартовый… крутим ещё!")
-            await asyncio.sleep(2)
+            await asyncio.sleep(3)
             await animate_spinner(spinner_msg)
             continue
 
