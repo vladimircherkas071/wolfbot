@@ -17,6 +17,9 @@ from fun.reactions import (
     match_lucifer,
 )
 
+from punish_wheel import wheel_command, stats_command
+
+
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
 
@@ -55,12 +58,21 @@ async def wolf(message: types.Message):
     update_activity()
     await message.reply(random_wolf())
 
+#---------- WHEEL ----------
+
+@dp.message_handler(commands=["wheel"])
+async def wheel(msg: types.Message):
+  await wheel_command(msg, bot)
+  
+@dp.message_handler(commands=["wheel_stats"])
+async def wheel_stats(msg: types.Message):
+  await stats_command(msg)
+
 
 @dp.message_handler(commands=["help", "помощь", "инструкция"])
 async def help_command(message: types.Message):
     update_activity()
     await bot.send_message(message.chat.id, HELP_TEXT)
-
 
 # ---------- MEDIA ----------
 
