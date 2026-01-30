@@ -21,36 +21,52 @@ def update_activity():
     last_activity = time.time()
 
 
-async def start_silence_watcher(bot: Bot, chat_id: int, interval=1800):
+async def start_silence_watcher(bot: Bot, chat_id: int):
     global last_ping_time, last_activity
 
+    INTERVAL = 1800
+    DELETE_DELAY = 120
+
     while True:
-        await asyncio.sleep(interval)
+        await asyncio.sleep(60)
 
         now = time.time()
 
-        if now - last_activity < interval:
+        # чат активен
+        if now - last_activity < INTERVAL:
             continue
 
-        if now - last_ping_time < 1800:
+        # антифлуд
+        if now - last_ping_time < INTERVAL:
             continue
 
         try:
-            voice = random.choice(IDLE_VOICES)
+            voice_id = random.choice(IDLE_VOICES)  # список плейсхолдеров
 
-            v = await bot.send_voice(chat_id, voice)
-            t = await bot.send_message(chat_id, IDLE_TEXT)
+            v = await bot.send_voice(chat_id, voice_id)
+            t = await bot.send_message(
+                chat_id,
+                "Я подключен к нашей таблице, если не прослушаешь поставлю -250 штраф автоматом!"
+            )
 
             last_ping_time = now
             last_activity = now
 
-            await asyncio.sleep(120)
-
-            try:
-                await v.delete()
-                await t.delete()
-            except:
-                pass
+            # async cleanup
+            asyncio.create_task(cleanup_idle(bot, chat_id, v.message_id, t.message_id))
 
         except Exception as e:
-            print("Silence watcher error:", e)
+            print("Idle watcher error:", e)
+            
+async def cleanup_idle(bot, chat_id, voice_id, text_id):
+    await asyncio.sleep(120)
+
+    try:
+        await bot.delete_message(chat_id, voice_id)
+    except:
+        pass
+
+    try:
+        await bot.delete_message(chat_id, text_id)
+    except:
+        pass
