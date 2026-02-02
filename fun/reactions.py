@@ -98,7 +98,8 @@ VOICE_REACTIONS = {
     ("умник", "умный", "что делать", "ведешь"):
       "AwACAgUAAxkDAAMPaXtN87jpmzcgt_bwUSIYRgHh8RQAAvsYAAJ0XdlXnKrPMs2xtg84BA",
     ("расскажи", "как заработать", "рассказывай"):
-      "AwACAgUAAxkDAAMSaXtOiDRjIcjcm8vk8fKsQe0AAQ9fAAL9GAACdF3ZV1kcLSKWWcYKOAQ"
+      "AwACAgUAAxkDAAMSaXtOiDRjIcjcm8vk8fKsQe0AAQ9fAAL9GAACdF3ZV1kcLSKWWcYKOAQ",
+    ("директор", "шеф", "замалажива"): "AwACAgUAAxkDAAMoaXuDG43zlw04Tz5Wag7tsBQQuy8AAhIcAAJ0XeFXV4N0rVxCGyw4BA"
 }
 
 def match_voice(text: str):
