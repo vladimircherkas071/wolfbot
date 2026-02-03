@@ -6,8 +6,10 @@ import json
 import os
 from aiogram import types
 from aiogram.utils.exceptions import MessageNotModified, RetryAfter
+from config import load_wheel_access
 
 WHEEL_GIF = "wheel.mp4"
+RESULT_GIF = "winner.mp4"
 STATS_FILE = "wheel_stats.json"
 
 PUNISHMENTS = [
@@ -56,13 +58,17 @@ def save_stats(data):
     print("[Stats save error]:", e)
 
 
-def add_stat(username, punishment):
+def add_stat(chat_id, username, punishment):
     stats = load_stats()
+    chat = str(chat_id)
 
-    if username not in stats:
-        stats[username] = []
+    if chat not in stats:
+        stats[chat] = {}
 
-    stats[username].append(punishment)
+    if username not in stats[chat]:
+        stats[chat][username] = []
+
+    stats[chat][username].append(punishment)
     save_stats(stats)
 
 
@@ -120,7 +126,7 @@ async def run_wheel(bot, chat_id, username):
 
     await bot.send_animation(chat_id, open(WHEEL_GIF, "rb"))
 
-    spinner_msg = await bot.send_message(chat_id, "Крутим…")
+    spinner_msg = await bot.send_message(chat_id, "Крутим колесо… Страшно?")
 
     await animate_spinner(spinner_msg)
 
@@ -135,15 +141,33 @@ async def run_wheel(bot, chat_id, username):
 
         text = f"💀 {username}\n\nВыпало:\n👉 {punishment}"
         await spinner_msg.edit_text(text)
+        #реакция после результата
+        try:
+          await bot.send_animation(chat_id, open(RESULT_GIF, "rb"))
+        except Exception as e:
+          print("Result gif error:", e)
 
-        add_stat(username, punishment)
+        add_stat(chat_id, username, punishment)
         break
 
 
 # ---------------- COMMANDS ----------------
 
 async def wheel_command(message: types.Message, bot):
-    parts = message.text.split()
+    access = load_wheel_access()
+
+    chat = str(message.chat.id)
+    user = message.from_user.id
+
+    if chat not in access:
+        await message.reply("⛔️ В этом чате колесо не подключено.")
+        return
+
+    if access[chat] != user:
+        await message.reply("⛔️ Только администратор этого чата может запускать колесо.")
+        return
+
+    parts = message.text.split(maxsplit=1)
 
     if len(parts) < 2:
         await message.reply("Использование:\n/wheel Slivki")
@@ -156,10 +180,13 @@ async def wheel_command(message: types.Message, bot):
 
 async def stats_command(message: types.Message):
     stats = load_stats()
+    chat = str(message.chat.id)
 
-    if not stats:
+    if chat not in stats:
         await message.reply("Пока статистики нет.")
         return
+
+    stats = stats[chat]
 
     text = "📊 Статистика наказаний:\n\n"
 

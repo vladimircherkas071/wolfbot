@@ -5,8 +5,8 @@ import subprocess
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
-TOKEN = os.getenv("BOT_TOKEN")
-OWNER_ID = int(os.getenv("OWNER_ID"))
+TOKEN = os.getenv("BOT_TOKEN") or "8508519809:AAFgIb3qNhW0-gMseeneZ_F_Doj9uSy5Heg"
+OWNER_ID = "8334582417"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)

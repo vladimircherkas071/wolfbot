@@ -157,7 +157,7 @@ async def react_text(message: types.Message):
 # ---------- START ----------
 
 async def main():
-    asyncio.create_task(start_silence_watcher(bot, CHAT_ID))
+    asyncio.create_task(start_silence_watcher(bot))
     await dp.start_polling()
 
 if __name__ == "__main__":

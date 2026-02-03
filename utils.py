@@ -3,6 +3,7 @@ import asyncio
 import random
 from aiogram import Bot
 
+active_chats = set()
 last_activity = time.time()
 last_ping_time = 0
 
@@ -13,51 +14,43 @@ IDLE_VOICES = [
     "AwACAgUAAxkDAAMlaXuC4Q49sTjT1SqyUGim01Q3BJ8AAhAcAAJ0XeFXKr5ZIb31tGo4BA"
 ]
 
-IDLE_TEXT = "Я подключен к нашей таблице, если не прослушаешь поставлю -250 штраф автоматом!"
+IDLE_TEXT = "🎯🔥💪Немножко мотивации Вам в ленту ребятушки!!!🍀"
 
 
-def update_activity():
+def update_activity(chat_id=None):
     global last_activity
     last_activity = time.time()
+    
+    if chat_id:
+      active_chats.add(chat_id)
 
 
-async def start_silence_watcher(bot: Bot, chat_id: int):
-    global last_ping_time, last_activity
-
-    INTERVAL = 1800
-    DELETE_DELAY = 120
+async def start_silence_watcher(bot: Bot):
+    global last_ping_time
 
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(20)
 
-        now = time.time()
+        if time.time() - last_activity > 300:
+            if time.time() - last_ping_time < 300:
+                continue
 
-        # чат активен
-        if now - last_activity < INTERVAL:
-            continue
+            last_ping_time = time.time()
 
-        # антифлуд
-        if now - last_ping_time < INTERVAL:
-            continue
+            for chat in list(active_chats):
+                voice = random.choice(IDLE_VOICES)
+                msg = await bot.send_voice(chat, voice)
 
-        try:
-            voice_id = random.choice(IDLE_VOICES)  # список плейсхолдеров
+                # автоудаление
+                asyncio.create_task(delete_later(bot, chat, msg.message_id))
 
-            v = await bot.send_voice(chat_id, voice_id)
-            t = await bot.send_message(
-                chat_id,
-                "Я подключен к нашей таблице, если не прослушаешь поставлю -250 штраф автоматом!"
-            )
+async def delete_later(bot, chat_id, msg_id, delay=120):
+    await asyncio.sleep(delay)
+    try:
+        await bot.delete_message(chat_id, msg_id)
+    except:
+        pass
 
-            last_ping_time = now
-            last_activity = now
-
-            # async cleanup
-            asyncio.create_task(cleanup_idle(bot, chat_id, v.message_id, t.message_id))
-
-        except Exception as e:
-            print("Idle watcher error:", e)
-            
 async def cleanup_idle(bot, chat_id, voice_id, text_id):
     await asyncio.sleep(120)
 
