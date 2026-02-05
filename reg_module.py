@@ -20,7 +20,7 @@ def reg_start_kb():
 
 def teammates_kb(chat_id, reg_type):
     kb = InlineKeyboardMarkup()
-    for name in TEAMMATES.get(chat_id, []):
+    for name in TEAMMATES.get(str(chat_id), []):
         kb.add(
             InlineKeyboardButton(
                 name,
@@ -31,15 +31,19 @@ def teammates_kb(chat_id, reg_type):
 
 
 async def cmd_reg(message: types.Message, bot):
-    if message.chat.id not in TEAMMATES:
-        return
-
+  chat = str(message.chat.id)
+  if chat not in TEAMMATES:
+    await message.reply("Регистрация в этом чате не включена!")
+    return
+  try:
     await bot.send_animation(
-        message.chat.id,
-        open(random_gif(), "rb"),
-        caption="Что регаем?",
-        reply_markup=reg_start_kb()
+      message.chat.id,
+      open(random_gif(), "rb"),
+      caption="Что регаем?",
+      reply_markup=reg_start_kb()
     )
+  except Exception as e:
+    await message.reply(f"reg gif error: {e}")
 
 
 async def reg_callbacks(call: types.CallbackQuery):
