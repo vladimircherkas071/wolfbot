@@ -40,7 +40,6 @@ async def cleanup(chat_id, trigger_id, bot_id):
     except:
         pass
 
-
 # ---------- COMMANDS ----------
 
 @dp.message_handler(commands=["мем"])
@@ -75,6 +74,23 @@ async def wheel_stats(msg: types.Message):
 async def help_command(message: types.Message):
     update_activity(message.chat.id)
     await bot.send_message(message.chat.id, HELP_TEXT)
+
+#---------- REGISTRATION ----------
+
+@dp.message_handler(commands=["reg"])
+async def reg(message: types.Message):
+  print("REG COMMAND FIRED")
+  await cmd_reg(message, bot)
+
+
+@dp.message_handler(commands=["reset_stats"])
+async def reset_stats(message: types.Message):
+    await reset_stats_cmd(message)
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("reg"))
+async def reg_cb(call: types.CallbackQuery):
+    await reg_callbacks(call)
 
 # ---------- MEDIA ----------
 
@@ -155,22 +171,6 @@ async def react_text(message: types.Message):
 
     except:
         traceback.print_exc()
-
-#---------- REGISTRATION ----------
-
-@dp.message_handler(commands=["reg"])
-async def reg(message: types.Message):
-    await cmd_reg(message, bot)
-
-
-@dp.message_handler(commands=["reset_stats"])
-async def reset_stats(message: types.Message):
-    await reset_stats_cmd(message)
-
-
-@dp.callback_query_handler(lambda c: c.data.startswith("reg"))
-async def reg_cb(call: types.CallbackQuery):
-    await reg_callbacks(call)
 
 # ---------- START ----------
 
