@@ -46,3 +46,34 @@ def reset_month(chat_id):
         del data[chat][month]
 
     save(data)
+
+def format_stats(chat_id):
+    data = load()
+    chat = str(chat_id)
+    month = current_month()
+
+    if chat not in data or month not in data[chat]:
+        return "📊 За текущий месяц пока нет регистраций."
+
+    users = data[chat][month]
+
+    text = f"📊 Статистика регистраций ({month})\n\n"
+
+    total_pipe = 0
+    total_dep = 0
+
+    for name, vals in users.items():
+        p = vals.get("pipe", 0)
+        d = vals.get("dep", 0)
+
+        total_pipe += p
+        total_dep += d
+
+        text += f"👤 {name}\n"
+        text += f"  📞 Трубка: {p}\n"
+        text += f"  💰 Деп: {d}\n\n"
+
+    text += "────────────\n"
+    text += f"Итого:\n📞 {total_pipe} | 💰 {total_dep}"
+
+    return text

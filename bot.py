@@ -20,6 +20,7 @@ from fun.reactions import (
 from punish_wheel import wheel_command, stats_command
 
 from reg_module import cmd_reg, reg_callbacks, reset_stats_cmd
+import stats
 
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -79,9 +80,13 @@ async def help_command(message: types.Message):
 
 @dp.message_handler(commands=["reg"])
 async def reg(message: types.Message):
-  print("REG COMMAND FIRED")
+  #print("REG COMMAND FIRED")
   await cmd_reg(message, bot)
 
+@dp.message_handler(commands=["stats"])
+async def reg_stats(message: types.Message):
+    text = stats.format_stats(message.chat.id)
+    await message.reply(text)
 
 @dp.message_handler(commands=["reset_stats"])
 async def reset_stats(message: types.Message):
