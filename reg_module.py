@@ -1,7 +1,7 @@
 import random
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram import types
-from config import TEAMMATES, REG_GIFS, WHEEL_ADMINS
+from config import TEAMMATES, REG_GIFS
 import stats
 
 
