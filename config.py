@@ -1,7 +1,25 @@
 import json
 import os
+from datetime import date
 
 ACCESS_FILE = "wheel_access.json"
+
+TEAMMATES = {
+  -1003341137383: [
+    "Volleibollist",
+    "Dukee",
+    "Gareek",
+    "Tushkann",
+    "SizhkaAlaverda",
+    "Miilka"
+    ]
+}
+
+REG_GIFS = [
+  "reg1.mp4",
+  "reg2.mp4",
+  "reg3.mp4"
+  ]
 
 
 def load_wheel_access():

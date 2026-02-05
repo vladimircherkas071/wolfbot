@@ -19,6 +19,8 @@ from fun.reactions import (
 
 from punish_wheel import wheel_command, stats_command
 
+from reg_module import cmd_reg, reg_callbacks, reset_stats_cmd
+
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
@@ -153,6 +155,22 @@ async def react_text(message: types.Message):
 
     except:
         traceback.print_exc()
+
+#---------- REGISTRATION ----------
+
+@dp.message_handler(commands=["reg"])
+async def reg(message: types.Message):
+    await cmd_reg(message, bot)
+
+
+@dp.message_handler(commands=["reset_stats"])
+async def reset_stats(message: types.Message):
+    await reset_stats_cmd(message)
+
+
+@dp.callback_query_handler(lambda c: c.data.startswith("reg"))
+async def reg_cb(call: types.CallbackQuery):
+    await reg_callbacks(call)
 
 # ---------- START ----------
 
