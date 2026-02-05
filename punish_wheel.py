@@ -116,15 +116,15 @@ async def animate_spinner(msg):
     await asyncio.sleep(1.3)
 
 def spin_wheel():
-    return random.randint(1, 10)
+    return random.randrange(len(PUNISHMENTS))
 
 
 async def run_wheel(bot, chat_id, username):
     await bot.send_message(chat_id, f"🎡 {username} участвует в колесе волоеба…")
 
     await asyncio.sleep(3)
-
-    await bot.send_animation(chat_id, open(WHEEL_GIF, "rb"))
+    with open(WHEEL_GIF, "rb") as f:
+      await bot.send_animation(chat_id, f)
 
     spinner_msg = await bot.send_message(chat_id, "Крутим колесо… Страшно?")
 
@@ -132,7 +132,7 @@ async def run_wheel(bot, chat_id, username):
 
     while True:
         result = spin_wheel()
-        punishment = PUNISHMENTS[result - 1]
+        punishment = PUNISHMENTS[result]
 
         if result == 10:
             await asyncio.sleep(3)
@@ -143,7 +143,8 @@ async def run_wheel(bot, chat_id, username):
         await spinner_msg.edit_text(text)
         #реакция после результата
         try:
-          await bot.send_animation(chat_id, open(RESULT_GIF, "rb"))
+          with open(RESULT_GIF, "rb") as f:
+            await bot.send_animation(chat_id, f)
         except Exception as e:
           print("Result gif error:", e)
 

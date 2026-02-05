@@ -1,7 +1,7 @@
 import random
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram import types
-from config import TEAMMATES, REG_GIFS
+from config import TEAMMATES, REG_GIFS, load_wheel_access
 import stats
 
 
@@ -72,8 +72,9 @@ async def reg_callbacks(call: types.CallbackQuery):
 
 async def reset_stats_cmd(message: types.Message):
     chat_id = message.chat.id
+    access = load_wheel_access()
 
-    if WHEEL_ADMINS.get(chat_id) != message.from_user.id:
+    if str(chat_id) not in access or access[str(chat_id)] != message.from_user.id:
         await message.reply("⛔️ Только админ колеса.")
         return
 

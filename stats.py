@@ -7,7 +7,10 @@ FILE = Path("stats.json")
 
 def load():
     if FILE.exists():
+      try:
         return json.loads(FILE.read_text())
+      except:
+        return {}
     return {}
 
 

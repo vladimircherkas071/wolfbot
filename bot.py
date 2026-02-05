@@ -45,19 +45,19 @@ async def cleanup(chat_id, trigger_id, bot_id):
 
 @dp.message_handler(commands=["мем"])
 async def meme(message: types.Message):
-    update_activity()
+    update_activity(message.chat.id)
     await message.reply(random_meme())
 
 
 @dp.message_handler(commands=["оракул"])
 async def oracle(message: types.Message):
-    update_activity()
+    update_activity(message.chat.id)
     await message.reply(random_oracle())
 
 
 @dp.message_handler(commands=["волк"])
 async def wolf(message: types.Message):
-    update_activity()
+    update_activity(message.chat.id)
     await message.reply(random_wolf())
 
 #---------- WHEEL ----------
@@ -73,7 +73,7 @@ async def wheel_stats(msg: types.Message):
 
 @dp.message_handler(commands=["help", "помощь", "инструкция"])
 async def help_command(message: types.Message):
-    update_activity()
+    update_activity(message.chat.id)
     await bot.send_message(message.chat.id, HELP_TEXT)
 
 # ---------- MEDIA ----------
@@ -86,7 +86,7 @@ async def catch_voice(message: types.Message):
 @dp.message_handler(content_types=[ContentType.ANIMATION, ContentType.STICKER, ContentType.DOCUMENT])
 async def react_media(message: types.Message):
     try:
-        update_activity()
+        update_activity(message.chat.id)
 
         if random.random() < 0.4:
             msg = await bot.send_message(message.chat.id, gif_reaction())
@@ -99,7 +99,7 @@ async def react_media(message: types.Message):
 @dp.message_handler(content_types=ContentType.PHOTO)
 async def react_photo(message: types.Message):
     try:
-        update_activity()
+        update_activity(message.chat.id)
 
         if random.random() < 0.65:
             msg = await bot.send_message(message.chat.id, photo_reaction())
@@ -120,7 +120,7 @@ async def react_text(message: types.Message):
         if message.text.startswith("/"):
             return
 
-        update_activity()
+        update_activity(message.chat.id)
 
         text = message.text.lower()
 
